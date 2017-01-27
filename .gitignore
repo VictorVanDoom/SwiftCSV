@@ -1,4 +1,4 @@
-# Created by http://www.gitignore.io
+#Created by http://www.gitignore.io
 
 ### Objective-C ###
 # Xcode
@@ -28,3 +28,5 @@ DerivedData
 #
 # Pods/
 
+# SPM
+.build
