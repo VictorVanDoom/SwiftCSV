@@ -6,10 +6,26 @@
 //  Copyright © 2016 Naoto Kaneko. All rights reserved.
 //
 
+enum ParserError: Swift.Error, CustomStringConvertible{
+
+    case nonQuote(Character)
+    case meIRL
+    
+    var description: String {
+        
+        switch self {
+        case .nonQuote(let char):
+            return "Can't have non-quote here: \(char)"
+        case .meIRL:
+            return "me_irl"
+        }
+    }
+}
+
 extension CSV {
     /// Parse the file and call a block on each row, passing it in as a list of fields
     /// limitTo will limit the result to a certain number of lines
-    func enumerateAsArray(block: @escaping ([String]) -> (), limitTo: Int?, startAt: Int = 0) {
+    func enumerateAsArray(block: @escaping ([String]) -> (), limitTo: Int?, startAt: Int = 0) throws {
         var currentIndex = text.startIndex
         let endIndex = text.endIndex
         
@@ -34,7 +50,7 @@ extension CSV {
             field = [Character]()
         }
         
-        let changeState: (Character) -> (Bool) = { char in
+        let changeState: (Character) throws -> (Bool) = { char in
             if atStart {
                 if char == "\"" {
                     atStart = false
@@ -55,7 +71,7 @@ extension CSV {
                         field.append(char)
                         innerQuotes = false
                     } else {
-                        fatalError("Can't have non-quote here: \(char)")
+                        throw ParserError.nonQuote(char)
                     }
                 } else {
                     if char == "\"" {
@@ -92,7 +108,7 @@ extension CSV {
                         innerQuotes = false
                         callBlock()
                     } else {
-                        fatalError("Can't have non-quote here: \(char)")
+                        throw ParserError.nonQuote(char)
                     }
                 } else {
                     if char == "\"" {
@@ -102,14 +118,14 @@ extension CSV {
                     }
                 }
             } else {
-                fatalError("me_irl")
+                throw ParserError.meIRL
             }
             return doLimit && count >= limitTo!
         }
         
         while currentIndex < endIndex {
             let char = text[currentIndex]
-            if changeState(char) {
+            if try changeState(char) {
                 break
             }
             currentIndex = text.index(after: currentIndex)

@@ -8,29 +8,29 @@
 
 extension CSV {
     /// List of dictionaries that contains the CSV data
-    public var rows: [[String: String]] {
+    public func rows() throws -> [[String: String]] {
         if _rows == nil {
-            parse()
+            try parse()
         }
         return _rows!
     }
     
     /// Dictionary of header name to list of values in that column
     /// Will not be loaded if loadColumns in init is false
-    public var columns: [String: [String]] {
+    public func columns() throws -> [String: [String]] {
         if !loadColumns {
             return [:]
         } else if _columns == nil {
-            parse()
+            try parse()
         }
         return _columns!
     }
     
     /// Parse the file and call a block for each row, passing it as a dictionary
-    public func enumerateAsDict(block: @escaping ([String: String]) -> ()) {
+    public func enumerateAsDict(block: @escaping ([String: String]) -> ()) throws {
         let enumeratedHeader = header.enumerated()
         
-        enumerateAsArray { fields in
+        try enumerateAsArray { fields in
             var dict = [String: String]()
             for (index, head) in enumeratedHeader {
                 dict[head] = index < fields.count ? fields[index] : ""
@@ -40,15 +40,15 @@ extension CSV {
     }
     
     /// Parse the file and call a block on each row, passing it in as a list of fields
-    public func enumerateAsArray(block: @escaping ([String]) -> ()) {
-        self.enumerateAsArray(block: block, limitTo: nil, startAt: 1)
+    public func enumerateAsArray(block: @escaping ([String]) -> ()) throws {
+        try self.enumerateAsArray(block: block, limitTo: nil, startAt: 1)
     }
     
-    private func parse() {
+    private func parse() throws {
         var rows = [[String: String]]()
         var columns = [String: [String]]()
         
-        enumerateAsDict { dict in
+        try enumerateAsDict { dict in
             rows.append(dict)
         }
 

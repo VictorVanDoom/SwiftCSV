@@ -25,7 +25,7 @@ public class CSV {
     /// string: string data of the CSV file
     /// delimiter: character to split row and header fields by (default is ',')
     /// loadColumns: whether to populate the columns dictionary (default is true)
-    public init(string: String, delimiter: Character = comma, loadColumns: Bool = true) {
+    public init(string: String, delimiter: Character = comma, loadColumns: Bool = true) throws {
         self.text = string
         self.delimiter = delimiter
         self.loadColumns = loadColumns
@@ -33,7 +33,7 @@ public class CSV {
         let createHeader: ([String]) -> () = { head in
             self.header = head
         }
-        enumerateAsArray(block: createHeader, limitTo: 1, startAt: 0)
+        try enumerateAsArray(block: createHeader, limitTo: 1, startAt: 0)
     }
     
     /// Load a CSV file
@@ -45,7 +45,7 @@ public class CSV {
     public convenience init(name: String, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true) throws {
         let contents = try String(contentsOfFile: name, encoding: encoding)
     
-        self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
+        try self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
     }
     
     /// Load a CSV file from a URL
@@ -58,7 +58,7 @@ public class CSV {
         
         let contents = try String(contentsOf: url, encoding: encoding)
         
-        self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
+        try self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
     }
     
     /// Turn the CSV data into NSData using a given encoding

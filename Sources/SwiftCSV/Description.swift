@@ -12,9 +12,15 @@ extension CSV: CustomStringConvertible {
     public var description: String {
         let head = header.joined(separator: ",") + "\n"
         
-        let cont = rows.map { row in
-            header.map { row[$0]! }.joined(separator: ",")
-        }.joined(separator: "\n")
-        return head + cont
+        do {
+            
+            let cont = try rows().map { row in
+                header.map { row[$0]! }.joined(separator: ",")
+                }.joined(separator: "\n")
+            return head + cont
+            
+        } catch let error {
+            return "An error occured. \(error)"
+        }
     }
 }
