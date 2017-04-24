@@ -6,19 +6,24 @@
 //  Copyright © 2016 Naoto Kaneko. All rights reserved.
 //
 
-enum ParserError: Swift.Error, CustomStringConvertible{
 
-    case nonQuote(Character)
-    case meIRL
+public enum ParserError: Swift.Error, CustomStringConvertible{
     
-    var description: String {
+    case nonQuote(String, Character)
+    case meIRL(String)
+    
+    public var description: String {
         
         switch self {
-        case .nonQuote(let char):
-            return "Can't have non-quote here: \(char)"
-        case .meIRL:
-            return "me_irl"
+        case .nonQuote(let source, let char):
+            return "Can't have non-quote character \(char) in \(source)"
+        case .meIRL(let source):
+            return "me_irl error in \(source)"
         }
+    }
+    
+    public var localizedDescription: String {
+        return description
     }
 }
 
@@ -71,7 +76,7 @@ extension CSV {
                         field.append(char)
                         innerQuotes = false
                     } else {
-                        throw ParserError.nonQuote(char)
+                        throw ParserError.nonQuote(self.fileName, char)
                     }
                 } else {
                     if char == "\"" {
@@ -108,7 +113,7 @@ extension CSV {
                         innerQuotes = false
                         callBlock()
                     } else {
-                        throw ParserError.nonQuote(char)
+                        throw ParserError.nonQuote(self.fileName, char)
                     }
                 } else {
                     if char == "\"" {
@@ -118,7 +123,7 @@ extension CSV {
                     }
                 }
             } else {
-                throw ParserError.meIRL
+                throw ParserError.meIRL(self.fileName)
             }
             return doLimit && count >= limitTo!
         }
