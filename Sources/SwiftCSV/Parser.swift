@@ -16,9 +16,9 @@ public enum ParserError: Swift.Error, CustomStringConvertible{
         
         switch self {
         case .nonQuote(let source, let char):
-            return "Can't have non-quote character \(char) in \(source)"
+            return "There was a problem with the quoutes in \(source) around non-quote character \(char). Check the file for random quotes."
         case .meIRL(let source):
-            return "me_irl error in \(source)"
+            return "Unknown error in \(source). The file contained characters that were not csv-compliant."
         }
     }
     
