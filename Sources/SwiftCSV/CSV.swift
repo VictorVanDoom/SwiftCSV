@@ -20,17 +20,24 @@ public class CSV {
     internal var fileName: String
     
     let loadColumns: Bool
+    let firstRowIsHeader: Bool
     
     /// Load a CSV file from a string
     ///
     /// string: string data of the CSV file
     /// delimiter: character to split row and header fields by (default is ',')
     /// loadColumns: whether to populate the columns dictionary (default is true)
-    public init(string: String, delimiter: Character = comma, loadColumns: Bool = true) throws {
+    public init(string: String, delimiter: Character = comma, loadColumns: Bool = true, firstRowIsHeader: Bool = true) throws {
         self.text = string
         self.delimiter = delimiter
         self.loadColumns = loadColumns
+        self.firstRowIsHeader = firstRowIsHeader
         self.fileName = "CSV-Content"
+        
+        guard firstRowIsHeader else {
+            self.header = [];
+            return
+        }
         
         let createHeader: ([String]) -> () = { head in
             self.header = head
@@ -44,10 +51,10 @@ public class CSV {
     /// delimiter: character to split row and header fields by (default is ',')
     /// encoding: encoding used to read file (default is NSUTF8StringEncoding)
     /// loadColumns: whether to populate the columns dictionary (default is true)
-    public convenience init(name: String, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true) throws {
+    public convenience init(name: String, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true, firstRowIsHeader: Bool = true) throws {
         let contents = try String(contentsOfFile: name, encoding: encoding)
         
-        try self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
+        try self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns, firstRowIsHeader:firstRowIsHeader)
         self.fileName = name
     }
     
@@ -57,11 +64,11 @@ public class CSV {
     /// delimiter: character to split row and header fields by (default is ',')
     /// encoding: encoding used to read file (default is NSUTF8StringEncoding)
     /// loadColumns: whether to populate the columns dictionary (default is true)
-    public convenience init(url: URL, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true) throws {
+    public convenience init(url: URL, delimiter: Character = comma, encoding: String.Encoding = String.Encoding.utf8, loadColumns: Bool = true, firstRowIsHeader: Bool = true) throws {
         
         let contents = try String(contentsOf: url, encoding: encoding)
         
-        try self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns)
+        try self.init(string: contents, delimiter: delimiter, loadColumns: loadColumns, firstRowIsHeader:firstRowIsHeader)
         self.fileName = url.lastPathComponent
     }
     

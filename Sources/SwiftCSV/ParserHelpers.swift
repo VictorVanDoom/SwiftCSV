@@ -32,7 +32,9 @@ extension CSV {
         
         try enumerateAsArray { fields in
             var dict = [String: String]()
-            for (index, head) in enumeratedHeader {
+            
+            let headerBase = self.firstRowIsHeader ? enumeratedHeader : (0..<fields.count).map({ return "\($0)" }).enumerated()
+            for (index, head) in headerBase {
                 dict[head] = index < fields.count ? fields[index] : ""
             }
             block(dict)
@@ -41,7 +43,7 @@ extension CSV {
     
     /// Parse the file and call a block on each row, passing it in as a list of fields
     public func enumerateAsArray(block: @escaping ([String]) -> ()) throws {
-        try self.enumerateAsArray(block: block, limitTo: nil, startAt: 1)
+        try self.enumerateAsArray(block: block, limitTo: nil, startAt: self.firstRowIsHeader ? 1 : 0)
     }
     
     private func parse() throws {
@@ -51,7 +53,7 @@ extension CSV {
         try enumerateAsDict { dict in
             rows.append(dict)
         }
-
+        
         if loadColumns {
             for field in header {
                 columns[field] = rows.map { $0[field] ?? "" }
@@ -62,3 +64,4 @@ extension CSV {
         _rows = rows
     }
 }
+
